@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 반드시 작성!
+ -->
+<mapper namespace="Member">
+    <select id="paging" parameterType="java.util.HashMap" resultType="member">
+        select * from member_table order by id desc limit #{start}, #{limit}
+    </select>
+
+    <select id="count" resultType="Integer">
+        select count(id) from member_table
+    </select>
+
+    <select id="searchCount" resultType="Integer" parameterType="java.util.HashMap">
+        select count(id) from member_table WHERE ${k} LIKE CONCAT('%', #{q}, '%')
+    </select>
+
+    <select id="search" resultType="member" parameterType="java.util.HashMap">
+        select * from member_table WHERE ${k} LIKE CONCAT('%', #{q}, '%') limit #{start}, #{limit}
+    </select>
+
+    <select id="login" parameterType="member" resultType="member" >
+        select * from member_table where memberEmail = #{memberEmail} and memberPassword = #{memberPassword}
+    </select>
+
+    <select id="findId" parameterType="member" resultType="Long" >
+        select id from member_table where memberEmail = #{memberEmail} and memberPassword = #{memberPassword}
+    </select>
+
+    <insert id="save" parameterType="member" useGeneratedKeys="true" keyProperty="id">
+        insert into member_table(memberEmail, memberPassword, memberName, memberBirth, memberMobile, fileAttached) values (#{memberEmail}, #{memberPassword}, #{memberName}, #{memberBirth}, #{memberMobile}, #{fileAttached})
+    </insert>
+
+    <insert id="saveFile" parameterType="memberFile">
+        insert into member_file_table(originalFileName, storedFileName, memberId)
+        values (#{originalFileName}, #{storedFileName}, #{memberId})
+    </insert>
+
+    <select id="findEmail" parameterType="String" resultType="member">
+        select * from member_table where memberEmail = #{memberEmail}
+    </select>
+
+    <select id="findMember" parameterType="Long" resultType="member">
+        select * from member_table where id = #{id}
+    </select>
+
+    <select id="findAll" resultType="member">
+        select * from member_table
+    </select>
+
+    <select id="findFile" parameterType="Long" resultType="memberFile">
+        select * from member_file_table where memberId = #{memberId}
+    </select>
+
+    <update id="update" parameterType="member" >
+        update member_table set memberName = #{memberName}, memberBirth = #{memberBirth}, memberMobile = #{memberMobile} where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        delete from member_table where id = #{id}
+    </delete>
+</mapper>
+
+
+
+
+
+
+
+
+
