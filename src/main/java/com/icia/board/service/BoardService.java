@@ -137,14 +137,9 @@ public class BoardService {
         } else {
             //파일있다
             boardDTO.setFileAttached(1);
-            System.out.println("p" + boardDTO);
             List<BoardFileDTO> boardFileDTOList = boardRepository.findFile(boardDTO.getId());
-            System.out.println("b" + boardFileDTOList);
-            String path = "C:\\spring_img\\";
-
             for(BoardFileDTO boardFileDTO : boardFileDTOList){
-                File file = new File(path + boardFileDTO.getStoredFileName());
-                FileUtils.deleteQuietly(file);
+                boardRepository.deleteFile(boardFileDTO.getId());
             }
             BoardDTO saveBoard = boardRepository.update(boardDTO);
             for (MultipartFile boardFile : boardDTO.getBoardFile()) {

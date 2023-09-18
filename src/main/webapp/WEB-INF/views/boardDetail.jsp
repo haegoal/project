@@ -39,7 +39,7 @@
         <hr style="border: solid 2px">
     </div>
     <div class="row ms-2">
-        <div class="col">
+        <div class="col" id="board-list-area">
             <c:if test="${board.fileAttached == 1}">
                 <c:forEach items="${boardFileList}" var="boardFile" varStatus="vs">
                     <img src="${pageContext.request.contextPath}/upload/${boardFile.storedFileName}"
@@ -115,7 +115,9 @@
                 <c:if test="${user == comment.commentWriter or comment.memberId ==null or user=='admin@admin.com'}">
                 <div class="col text-end">
                     <div class="col text-end"><i class="bi bi-x-square-fill" style='cursor: pointer'
-                                                 onclick="delete_fn('${comment.id}', '${comment.memberId}')"></i></div>
+                                                 onclick="delete_fn('${comment.id}', '${comment.memberId}')"></i>
+                    </div>
+                    <div class="col"></div>
                     </c:if>
                 </div>
                 <hr class="mt-5" style="border: solid 2px">
@@ -146,6 +148,32 @@
 </div>
 </body>
 <script>
+
+    $(document).ready(function() {
+        $(frm.boardFile).on("change", function(e) {
+            const files = e.target.files;
+            const list = document.getElementById("board-list-area");
+            list.innerHTML = "";
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                img.classList.add("board-image");
+                list.appendChild(img);
+            }
+            const imageCount = files.length;
+            $.ajax({
+                type: "get",
+                url: "/board/count",
+                data: {
+                    length: imageCount
+                },
+                success: function(data) {
+                    console.log("서버 응답 데이터:", data);
+                }
+            });
+        });
+    });
 
     const user = '${user}';
 
@@ -204,9 +232,7 @@
     }
 
     const delete_fn = (id, memberId) => {
-        alert('${user}');
         if (memberId == "" && ${user!="admin@admin.com"}  || memberId == null && ${user!="admin@admin.com"} ) {
-            alert('${user}');
             $("#modal-comment").modal("show");
             $("#comment_delete").on("click", function () {
                 const commentPassword = document.getElementById("modal-compw").value;

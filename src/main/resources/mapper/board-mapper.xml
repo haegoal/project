@@ -54,6 +54,10 @@
         update board_table set boardTitle = #{boardTitle}, boardPass = #{boardPass}, boardContents = #{boardContents}, boardHits = #{boardHits} where id = #{id}
     </update>
 
+    <delete id="deleteFile" parameterType="Long">
+        delete from board_file_table where id = #{id}
+    </delete>
+
 
 </mapper>
 

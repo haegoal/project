@@ -39,26 +39,17 @@
         <br><br><br>
         <div class="col-md-12">
           <div contentEditable="true" class="form-control">
+            <div id="board-list-area">
             <c:if test="${board.fileAttached == 1}">
               <c:forEach items="${boardFileList}" var="boardFile"  varStatus="status">
-                <c:if test="${status.index == 0}">
+                <c:if test="${status.index != status.end}">
                 <img src="${pageContext.request.contextPath}/upload/${boardFile.storedFileName}" id="image">
                 </c:if>
-                <c:if test="${status.index == 1}">
-                  <img src="${pageContext.request.contextPath}/upload/${boardFile.storedFileName}" id="image1">
-                </c:if>
-                <c:if test="${status.index == 2}">
-                  <img src="${pageContext.request.contextPath}/upload/${boardFile.storedFileName}" id="image2">
-                </c:if>
-                <c:if test="${status.index == 3}">
-                  <img src="${pageContext.request.contextPath}/upload/${boardFile.storedFileName}" id="image3">
-                </c:if>
-                <c:if test="${status.index == 4}">
-                  <img src="${pageContext.request.contextPath}/upload/${boardFile.storedFileName}" id="image4">
-                </c:if>
               </c:forEach>
-              <textarea class="form-control" rows="8" cols="100" id="boardContents" name="boardContents">${board.boardContents}</textarea>
             </c:if>
+            </div>
+            <textarea class="form-control" rows="8" cols="100" id="boardContents" name="boardContents">${board.boardContents}</textarea>
+          </div>
           </div>
         </div>
         <input class="mt-2" type="file" id="file" name="boardFile" multiple accept="image/*" ><br>
@@ -90,59 +81,46 @@
     e.preventDefault();
     const boardWriter = $(frm.boardWriter).val();
     const boardTitle = $(frm.boardTitle).val();
-    const boardFile = document.getElementById('file');
     const boardContents = document.getElementById("boardContents").value;
     if(boardWriter==""){
       alert("작성자 입력바람!")
     }else if(boardTitle == ""){
       alert("제목입력바람")
-    }else if(boardFile.length > 5){
-      alert("파일은 5개까지만 가능합니다.")
+    }else if(boardContents=="") {
+      alert("제목입력바람!")
     }else{
-      console.log(boardContents)
       frm.submit();
     }
   })
 
 
-  $(frm.boardFile).on("change", function (e){
-    e.target.files.length=0;
-    console.log(e.target.files)
-    console.log(e.target.files.length)
-    if(e.target.files.length>5) {
-      alert("파일은 5개만 업로드됩니다.")
-    }else if(e.target.files.length==1) {
-      $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-      $("#image1").attr("src", "");
-      $("#image2").attr("src", "");
-      $("#image3").attr("src", "");
-      $("#image4").attr("src", "");
-    }else if(e.target.files.length==2) {
-      $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-      $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-      $("#image2").attr("src", "");
-      $("#image3").attr("src", "");
-      $("#image4").attr("src", "");
-    }else if(e.target.files.length==3) {
-      $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-      $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-      $("#image2").attr("src", URL.createObjectURL(e.target.files[2]));
-      $("#image3").attr("src", "");
-      $("#image4").attr("src", "");
-    }else if(e.target.files.length==4) {
-      $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-      $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-      $("#image2").attr("src", URL.createObjectURL(e.target.files[2]));
-      $("#image3").attr("src", URL.createObjectURL(e.target.files[3]));
-      $("#image4").attr("src", "");
-    }else if(e.target.files.length==5) {
-      $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-      $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-      $("#image2").attr("src", URL.createObjectURL(e.target.files[2]));
-      $("#image3").attr("src", URL.createObjectURL(e.target.files[3]));
-      $("#image4").attr("src", URL.createObjectURL(e.target.files[4]));
-    }
-  })
+  $(document).ready(function() {
+    $(frm.boardFile).on("change", function(e) {
+      const files = e.target.files;
+      const list = document.getElementById("board-list-area");
+      list.innerHTML = "";
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.classList.add("board-image");
+        list.appendChild(img);
+      }
+      const imageCount = files.length;
+      $.ajax({
+        type: "get",
+        url: "/board/count",
+        data: {
+          length: imageCount
+        },
+        success: function(data) {
+          console.log("서버 응답 데이터:", data);
+        }
+      });
+    });
+  });
+
+
   const policy_fn = () => {
     $("#policy_modal").modal("show");
   }

@@ -31,6 +31,20 @@
         <div class="col-2 mt-3">
         <input type="submit" value="검색" class="btn btn-primary">
         </div>
+            <div class="col-2 mt-3 text-end">
+                <c:if test="${by==0}">
+                    <select name="by" id="by" class="form-select">
+                        <option value="0" selected>조회수</option>
+                        <option value="1">최신순</option>
+                    </select>
+                </c:if>
+                <c:if test="${by==1}">
+                    <select name="by" id="by" class="form-select">
+                        <option value="0">조회수</option>
+                        <option value="1" selected>최신순</option>
+                    </select>
+                </c:if>
+            </div>
         </div>
     </form>
     </div>
@@ -62,9 +76,21 @@
     </c:if>
     <div class="col-1">
     <select name="pageLimit" id="pageLimit" class="form-select">
-        <option value="3" >3개씩보기</option>
+        <c:if test="${pageLimit==3}">
+        <option value="3" selected>3개씩보기</option>
         <option value="5" >5개씩보기</option>
         <option value="10" >10개씩보기</option>
+        </c:if>
+        <c:if test="${pageLimit==5}">
+            <option value="3" >3개씩보기</option>
+            <option value="5" selected>5개씩보기</option>
+            <option value="10" >10개씩보기</option>
+        </c:if>
+        <c:if test="${pageLimit==10}">
+            <option value="3" >3개씩보기</option>
+            <option value="5" >5개씩보기</option>
+            <option value="10" selected>10개씩보기</option>
+        </c:if>
     </select>
     </div>
     <div class="text-end">
@@ -155,10 +181,14 @@
 </div>
 </body>
 <script>
-    console.log(${key})
     $("#pageLimit").on("change", function(){
         const pageLimit = document.getElementById("pageLimit").value;
-        location.href="/board/list?page=${paging.endPage}&query=${query}&key=${key}&pageLimit=" + pageLimit;
+        location.href="/board/list?page=${paging.page}&query=${query}&key=${key}&pageLimit=" + pageLimit + "&by=${by}";
+    })
+
+    $("#by").on("change", function(){
+        const by = document.getElementById("by").value;
+        location.href="/board/list?page=${paging.page}&query=${query}&key=${key}&pageLimit=" + pageLimit + "&by=" + by;
     })
 </script>
 </html>

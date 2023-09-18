@@ -36,7 +36,8 @@
                 <br><br><br>
                 <div class="col-md-12">
                     <div contentEditable="true" class="form-control">
-                        <img src="" id="image"><img src="" id="image1"><img src="" id="image2"><img src="" id="image3"><img src="" id="image4">
+                        <div id="board-list-area">
+                        </div>
                 <textarea class="form-control" rows="8" cols="100" name="boardContents">
                 </textarea>
                     </div>
@@ -78,50 +79,38 @@
             alert("비번입력바람!")
         }else if(boardTitle == ""){
             alert("제목입력바람")
-        }else if(boardFile.length > 5){
-            alert("파일은 5개까지만 가능합니다.")
         }else{
             frm.submit();
         }
     })
 
 
-    $(frm.boardFile).on("change", function (e){
-        e.target.files.length=0;
-        if(e.target.files.length>5) {
-            alert("파일은 5개만 업로드됩니다.")
-        }else if(e.target.files.length==1) {
-            $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-            $("#image1").attr("src", "");
-            $("#image2").attr("src", "");
-            $("#image3").attr("src", "");
-            $("#image4").attr("src", "");
-        }else if(e.target.files.length==2) {
-            $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-            $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-            $("#image2").attr("src", "");
-            $("#image3").attr("src", "");
-            $("#image4").attr("src", "");
-        }else if(e.target.files.length==3) {
-            $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-            $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-            $("#image2").attr("src", URL.createObjectURL(e.target.files[2]));
-            $("#image3").attr("src", "");
-            $("#image4").attr("src", "");
-        }else if(e.target.files.length==4) {
-            $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-            $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-            $("#image2").attr("src", URL.createObjectURL(e.target.files[2]));
-            $("#image3").attr("src", URL.createObjectURL(e.target.files[3]));
-            $("#image4").attr("src", "");
-        }else if(e.target.files.length==5) {
-            $("#image").attr("src", URL.createObjectURL(e.target.files[0]));
-            $("#image1").attr("src", URL.createObjectURL(e.target.files[1]));
-            $("#image2").attr("src", URL.createObjectURL(e.target.files[2]));
-            $("#image3").attr("src", URL.createObjectURL(e.target.files[3]));
-            $("#image4").attr("src", URL.createObjectURL(e.target.files[4]));
-        }
-    })
+    $(document).ready(function() {
+        $(frm.boardFile).on("change", function(e) {
+            const files = e.target.files;
+            const list = document.getElementById("board-list-area");
+            list.innerHTML = "";
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                img.classList.add("board-image");
+                list.appendChild(img);
+            }
+            const imageCount = files.length;
+            $.ajax({
+                type: "get",
+                url: "/board/count",
+                data: {
+                    length: imageCount
+                },
+                success: function(data) {
+                    console.log("서버 응답 데이터:", data);
+                }
+            });
+        });
+    });
+
     const policy_fn = () => {
       $("#policy_modal").modal("show");
     }

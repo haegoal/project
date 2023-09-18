@@ -7,6 +7,7 @@ import com.icia.board.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -39,6 +40,12 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
+    @GetMapping("/count")
+    public ResponseEntity count(@RequestParam("length") int length){
+        return new ResponseEntity<>(length, HttpStatus.OK);
+    }
+
+
     @GetMapping("/update")
     public String update(@RequestParam("id") Long id,Model model){
         BoardDTO boardDTO = boardService.findById(id);
@@ -69,6 +76,7 @@ public class BoardController {
                            @RequestParam(value = "pageLimit", required = false, defaultValue = "3") int pageLimit,
                            @RequestParam(value = "query", required = false, defaultValue = "") String query,
                            @RequestParam(value = "key", required = false, defaultValue = "boardTitle") String key,
+                           @RequestParam(value = "by", required = false, defaultValue = "boardHits") String by,
                            Model model) {
         boardService.updateHits(id);
         BoardDTO boardDTO = boardService.findById(id);
@@ -95,6 +103,7 @@ public class BoardController {
         model.addAttribute("key", key);
         model.addAttribute("page", page);
         model.addAttribute("pageLimit", pageLimit);
+        model.addAttribute("by", by);
         return "boardDetail";
     }
 

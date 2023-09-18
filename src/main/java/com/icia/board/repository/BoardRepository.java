@@ -60,4 +60,9 @@ public class BoardRepository {
         sql.update("Board.update", boardDTO);
         return boardDTO;
     }
+
+
+    public void deleteFile(Long id) {
+        sql.delete("Board.deleteFile", id);
+    }
 }
