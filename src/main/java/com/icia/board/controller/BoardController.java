@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -90,19 +91,16 @@ public class BoardController {
         if (boardDTO.getFileAttached() == 1) {
             List<BoardFileDTO> boardFileDTOList = boardService.findFile(id);
             model.addAttribute("boardFileList", boardFileDTOList);
-            System.out.println(boardFileDTOList);
         }
-
         List<CommentDTO> commentDTOList = commentService.findAll(id);
         List<HeartDTO> heartDTOList = commentService.findHeart();
 
-        System.out.println(heartDTOList);
         if (commentDTOList.size() == 0) {
             model.addAttribute("commentList", null);
-            model.addAttribute("heartList", null);
+            model.addAttribute("heartDTOList", null);
         } else {
             model.addAttribute("commentList", commentDTOList);
-            model.addAttribute("heartList", heartDTOList);
+            model.addAttribute("heartDTOList", heartDTOList);
         }
         model.addAttribute("query", query);
         model.addAttribute("key", key);

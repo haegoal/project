@@ -29,11 +29,28 @@ public class CommentService {
         return commentRepository.find(commentDTO);
     }
 
+    public List<HeartDTO> findHeart() {
+        return commentRepository.findHeart();
+    }
+
     public void insert(HeartDTO heartDTO) {
         commentRepository.insert(heartDTO);
     }
 
-    public List<HeartDTO> findHeart() {
-        return commentRepository.findHeart();
+    public void update(Long cid) {
+        commentRepository.update(cid);
+    }
+
+
+    public void drop(HeartDTO heartDTO) {
+        commentRepository.drop(heartDTO);
+    }
+
+    public void updated(Long cid) {
+        commentRepository.updated(cid);
+    }
+
+    public int select(Long cid) {
+        return commentRepository.select(cid);
     }
 }

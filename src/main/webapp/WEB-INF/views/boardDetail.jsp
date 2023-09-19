@@ -54,13 +54,13 @@
 
     <div class="row justify-content-end">
         <div class="col-2" style="display:flex">
-                <c:if test="${board.boardWriter == user or member==null and user!='admin@admin.com'}">
-                    <button onclick="board_update()" class="btn btn-primary m-1">수정</button>
-                    <button onclick="board_delete()" class="btn btn-primary m-1">삭제</button>
-                </c:if>
-                <c:if test="${user=='admin@admin.com'}">
-                    <button onclick="board_delete()" class="btn btn-primary m-1">삭제</button>
-                </c:if>
+            <c:if test="${board.boardWriter == user or member==null and user!='admin@admin.com'}">
+                <button onclick="board_update()" class="btn btn-primary m-1">수정</button>
+                <button onclick="board_delete()" class="btn btn-primary m-1">삭제</button>
+            </c:if>
+            <c:if test="${user=='admin@admin.com'}">
+                <button onclick="board_delete()" class="btn btn-primary m-1">삭제</button>
+            </c:if>
             <button onclick="board_list()" class=" btn btn-primary m-1">목록</button>
         </div>
     </div>
@@ -107,98 +107,122 @@
         </c:when>
         <c:otherwise>
         <div id="comment-list">
-            <c:forEach items="${commentList}" var="comment">
-            <div class="row">
-                <div class="col">${comment.commentWriter}</div>
-                <div class="col">${comment.commentContents}</div>
-                <div class="col">${comment.commentCreatedDate}</div>
-                <c:if test="${user == comment.commentWriter or comment.memberId ==null or user=='admin@admin.com'}">
-                <div class="col text-end">
-                    <div class="col text-end"><i class="bi bi-x-square-fill" style='cursor: pointer;' onclick="delete_fn(event, '${comment.id}', '${comment.memberId}')"></i>
-                        <input type="password" name="commentPass">
-                    </div>
-                    <div class="col"></div>
-                    </c:if>
-                </div>
+            <c:forEach items="${commentList}" var="comment" varStatus="status">
                 <div class="row">
-                    <div class="col">
-                        <i class="bi bi-hand-thumbs-up" id="heart-${comment.id}" style="cursor: pointer;" onclick="heart_fn(event, ${comment.id})"></i>
-                        <span id="cnt-${comment.id}"></span>
-                        <i class="bi bi-hand-thumbs-down" id="no-${comment.id}" style="cursor: pointer;" onclick="no_fn(event, ${comment.id})"></i>
+                    <div class="col">${comment.commentWriter}</div>
+                    <div class="col">${comment.commentContents}</div>
+                    <div class="col">${comment.commentCreatedDate}</div>
+                    <c:if test="${user == comment.commentWriter or comment.memberId ==null or user=='admin@admin.com'}">
+                    <div class="col text-end">
+                        <div class="col text-end"><i class="bi bi-x-square-fill" style='cursor: pointer;'
+                                                     onclick="delete_fn(event, '${comment.id}', '${comment.memberId}')"></i>
+                            <input type="password" name="commentPass">
+                        </div>
+                        <div class="col"></div>
+                        </c:if>
                     </div>
+                    <div class="row">
+                        <div class="col">
+                            <c:choose>
+                                <c:when test="${heartDTOList[status.index].mid==userId and comment.id == heartDTOList[status.index].cid}">
+                                    <i class="bi bi-hand-thumbs-up-fill" id="heart-${comment.id}"
+                                       style="cursor: pointer;" onclick="heart_fn(event, ${comment.id})"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="bi bi-hand-thumbs-up" id="heart-${comment.id}" style="cursor: pointer;"
+                                       onclick="heart_fn(event, ${comment.id})"></i>
+                                </c:otherwise>
+                            </c:choose>
+                            <i class="bi bi-hand-thumbs-down" id="no-${comment.id}" style="cursor: pointer;"
+                               onclick="no_fn(event, ${comment.id})"></i>
+                            <c:if test="${comment.cnt!=0}">
+                                <p id="cnt-${comment.id}">${comment.cnt}</p>
+                            </c:if>
+                        </div>
+                    </div>
+                    <hr class="mt-5" style="border: solid 2px">
                 </div>
-                <hr class="mt-5" style="border: solid 2px">
-            </div>
-                </c:forEach>
+            </c:forEach>
             </c:otherwise>
             </c:choose>
-
         </div>
     </div>
 </div>
 </body>
 <script>
-    getHeart();
-
-    function getHeart(){
-        const mid = '${userId}';
-        let cid = "${comment.id}";
-        console.log(cid)
-        $.ajax({
-            type:"get",
-            url:"/comment/read",
-            data:{
-                cid, mid
-            },
-            success:function(data){
-                if(data.cnt==1){
-                    $("#heart-"+cid).removeClass("bi-suit-heart").addClass("bi-suit-heart-fill");
-                }else{
-                    $("#heart-"+cid).removeClass("bi-suit-heart-fill").addClass("bi-suit-heart");
-                }
-                $("#cnt-"+cid).html(data.cnt);
-            }
-        });
-    }
 
     const heart_fn = (event, id) => {
-        if(${user==null}){
+        const cnt = document.getElementById("cnt-" + id);
+        if (${user==null}) {
             alert("로그인해주세요.")
-        }else{
+        } else if ($(`#heart-` + id).hasClass("bi-hand-thumbs-up")) {
+            alert(".....2")
             const cid = id;
             const mid = '${userId}';
             $.ajax({
-                url:"/comment/insert",
-                type:"get",
-                data:{
+                url: "/comment/insert",
+                type: "get",
+                data: {
                     cid,
                     mid
                 },
-                success:function(){
-
+                success: function (data) {
+                    cnt.innerText = data;
                 }
             })
-            if ($(`#no-`+id).hasClass("bi-hand-thumbs-down-fill")) {
-                $(`#no-`+id).removeClass("bi-hand-thumbs-down-fill").addClass("bi-hand-thumbs-down");
+        } else if ($(`#heart-` + id).hasClass("bi-hand-thumbs-up-fill")) {
+            const cid = id;
+            const mid = '${userId}';
+            $.ajax({
+                url: "/comment/drop",
+                type: "get",
+                data: {
+                    cid,
+                    mid
+                },
+                success: function (data) {
+                    cnt.innerText = data;
+                }
+            })
+        }
+        if (${user!=null}) {
+            if ($(`#no-` + id).hasClass("bi-hand-thumbs-down-fill")) {
+                $(`#no-` + id).removeClass("bi-hand-thumbs-down-fill").addClass("bi-hand-thumbs-down");
             }
             $(event.target).toggleClass("bi-hand-thumbs-up bi-hand-thumbs-up-fill");
         }
     }
 
     const no_fn = (event, id) => {
-        if(${user==null}){
+        const cnt = document.getElementById("cnt-" + id);
+        if (${user==null}) {
             alert("로그인해주세요.")
-        }else{
-            if ($(`#heart-`+id).hasClass("bi-hand-thumbs-up-fill")) {
-                $(`#heart-`+id).removeClass("bi-hand-thumbs-up-fill").addClass("bi-hand-thumbs-up");
+        } else if ($(`#heart-` + id).hasClass("bi-hand-thumbs-up-fill")) {
+            const cid = id;
+            const mid = '${userId}';
+            $.ajax({
+                url: "/comment/drop",
+                type: "get",
+                data: {
+                    cid,
+                    mid
+                },
+                success: function (data) {
+                    cnt.innerText = data;
+                }
+            })
+        }
+        if (${user!=null}) {
+            if ($(`#heart-` + id).hasClass("bi-hand-thumbs-up-fill")) {
+                $(`#heart-` + id).removeClass("bi-hand-thumbs-up-fill").addClass("bi-hand-thumbs-up");
             }
             $(event.target).toggleClass("bi-hand-thumbs-down bi-hand-thumbs-down-fill");
         }
     }
 
 
-    $(document).ready(function() {
-        $(frm.boardFile).on("change", function(e) {
+    $(document).ready(function () {
+        $(frm.boardFile).on("change", function (e) {
             const files = e.target.files;
             const list = document.getElementById("board-list-area");
             list.innerHTML = "";
@@ -216,7 +240,7 @@
                 data: {
                     length: imageCount
                 },
-                success: function(data) {
+                success: function (data) {
                     console.log("서버 응답 데이터:", data);
                 }
             });
@@ -257,7 +281,7 @@
                         output += "        <div class=\"col\">" + res[i].commentWriter + "</div>\n";
                         output += "        <div class=\"col\">" + res[i].commentContents + "</div>\n";
                         output += "        <div class=\"col\">" + res[i].commentCreatedDate + "</div>\n";
-                        if (res[i].memberId == null || user == res[i].commentWriter || user=='admin@admin.com') {
+                        if (res[i].memberId == null || user == res[i].commentWriter || user == 'admin@admin.com') {
                             output += "        <div class=\"col\"><i class='bi bi-x-square-fill' style='cursor: pointer' onclick=\"delete_fn(event, '" + res[i].id + "', null)\"></i><input type='password' name='commentPass'></div>\n";
                         }
                         output += "        <hr class=\"mt-5\" style=\"border: solid 2px\">";
@@ -279,11 +303,11 @@
     }
 
     const delete_fn = (event, id, memberId) => {
-        if (memberId == "" && ${user!="admin@admin.com"}  || memberId == null && ${user!="admin@admin.com"} ) {
+        if (memberId == "" && ${user!="admin@admin.com"} || memberId == null && ${user!="admin@admin.com"}) {
             const commentPassword = $(event.target).parent().find('input[name="commentPass"]').val();
-            if(commentPassword==""){
+            if (commentPassword == "") {
                 alert("비번입력바람!")
-            }else{
+            } else {
                 $.ajax({
                     type: "post",
                     data: {id, commentPassword},
@@ -345,7 +369,7 @@
         }
     }
     const board_delete = () => {
-        if (user == '${board.boardWriter}' || user=='admin@admin.com') {
+        if (user == '${board.boardWriter}' || user == 'admin@admin.com') {
             if (confirm("삭제하시겠습니까?")) {
                 const id = '${board.id}';
                 location.href = "/board/delete?id=" + id

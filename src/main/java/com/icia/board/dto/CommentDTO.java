@@ -11,4 +11,5 @@ public class CommentDTO{
     private Long boardId;
     private String commentPassword;
     private Long memberId;
+    private int cnt;
 }

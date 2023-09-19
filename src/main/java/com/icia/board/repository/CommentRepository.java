@@ -30,11 +30,27 @@ public class CommentRepository {
         return sql.selectOne("Comment.find", commentDTO);
     }
 
+    public List<HeartDTO> findHeart() {
+        return sql.selectList("Comment.findHeart");
+    }
+
     public void insert(HeartDTO heartDTO) {
         sql.insert("Comment.insert", heartDTO);
     }
 
-    public List<HeartDTO> findHeart() {
-        return sql.selectList("Comment.findHeart");
+    public void update(Long cid) {
+        sql.update("Comment.update", cid);
+    }
+
+    public void drop(HeartDTO heartDTO) {
+        sql.delete("Comment.drop", heartDTO);
+    }
+
+    public void updated(Long cid) {
+        sql.update("Comment.updated", cid);
+    }
+
+    public int select(Long id) {
+        return sql.selectOne("Comment.select", id);
     }
 }

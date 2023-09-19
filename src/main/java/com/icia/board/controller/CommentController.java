@@ -23,7 +23,17 @@ public class CommentController {
     @GetMapping("/insert")
     public ResponseEntity insert(@ModelAttribute HeartDTO heartDTO) {
         commentService.insert(heartDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        commentService.update(heartDTO.getCid());
+        int result = commentService.select(heartDTO.getCid());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/drop")
+    public ResponseEntity drop(@ModelAttribute HeartDTO heartDTO) {
+        commentService.drop(heartDTO);
+        commentService.updated(heartDTO.getCid());
+        int result = commentService.select(heartDTO.getCid());
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/delete")
