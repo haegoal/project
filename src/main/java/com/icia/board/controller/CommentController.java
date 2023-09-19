@@ -1,6 +1,7 @@
 package com.icia.board.controller;
 
 import com.icia.board.dto.CommentDTO;
+import com.icia.board.dto.HeartDTO;
 import com.icia.board.dto.MemberDTO;
 import com.icia.board.service.CommentService;
 import com.icia.board.service.MemberService;
@@ -18,6 +19,12 @@ import java.util.List;
 public class CommentController {
     @Autowired
     private CommentService commentService;
+
+    @GetMapping("/insert")
+    public ResponseEntity insert(@ModelAttribute HeartDTO heartDTO) {
+        commentService.insert(heartDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @GetMapping("/delete")
     public ResponseEntity ddelete(@RequestParam("id") Long id) {

@@ -1,6 +1,7 @@
 package com.icia.board.repository;
 
 import com.icia.board.dto.CommentDTO;
+import com.icia.board.dto.HeartDTO;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -27,5 +28,13 @@ public class CommentRepository {
 
     public CommentDTO find(CommentDTO commentDTO) {
         return sql.selectOne("Comment.find", commentDTO);
+    }
+
+    public void insert(HeartDTO heartDTO) {
+        sql.insert("Comment.insert", heartDTO);
+    }
+
+    public List<HeartDTO> findHeart() {
+        return sql.selectList("Comment.findHeart");
     }
 }

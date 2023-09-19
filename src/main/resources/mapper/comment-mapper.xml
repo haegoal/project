@@ -22,4 +22,12 @@
     <delete id="delete" parameterType="Long">
         delete from comment_table where id = #{id}
     </delete>
+
+    <insert id="insert" parameterType="heart">
+        insert into heart_table (mid, cid) values (#{mid}, #{cid})
+    </insert>
+
+    <select id="findHeart" resultType="heart">
+        select * from heart_table
+    </select>
 </mapper>

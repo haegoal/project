@@ -8,7 +8,7 @@
     <select id="paging" parameterType="java.util.HashMap" resultType="board">
         select id, boardWriter, boardTitle,
                date_format(createdAt, "%y-%m-%d %H:%i:%s") createdAt, boardHits, boardId
-        from board_table order by boardHits desc limit #{start}, #{limit}
+        from board_table order by ${by} desc limit #{start}, #{limit}
     </select>
 
     <select id="count" resultType="Integer">
@@ -22,7 +22,7 @@
     <select id="search" resultType="board" parameterType="java.util.HashMap">
         SELECT id, boardWriter, boardTitle,
                date_format(createdAt, "%y-%m-%d %H:%i:%s") createdAt, boardHits, boardId
-        FROM board_table WHERE ${k} LIKE CONCAT('%', #{q}, '%') limit #{start}, #{limit}
+        FROM board_table WHERE ${k} LIKE CONCAT('%', #{q}, '%') order by ${by} limit #{start}, #{limit}
     </select>
 
     <insert id="save" parameterType="board" useGeneratedKeys="true" keyProperty="id">

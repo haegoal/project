@@ -114,40 +114,88 @@
                 <div class="col">${comment.commentCreatedDate}</div>
                 <c:if test="${user == comment.commentWriter or comment.memberId ==null or user=='admin@admin.com'}">
                 <div class="col text-end">
-                    <div class="col text-end"><i class="bi bi-x-square-fill" style='cursor: pointer'
-                                                 onclick="delete_fn('${comment.id}', '${comment.memberId}')"></i>
+                    <div class="col text-end"><i class="bi bi-x-square-fill" style='cursor: pointer;' onclick="delete_fn(event, '${comment.id}', '${comment.memberId}')"></i>
+                        <input type="password" name="commentPass">
                     </div>
                     <div class="col"></div>
                     </c:if>
                 </div>
+                <div class="row">
+                    <div class="col">
+                        <i class="bi bi-hand-thumbs-up" id="heart-${comment.id}" style="cursor: pointer;" onclick="heart_fn(event, ${comment.id})"></i>
+                        <span id="cnt-${comment.id}"></span>
+                        <i class="bi bi-hand-thumbs-down" id="no-${comment.id}" style="cursor: pointer;" onclick="no_fn(event, ${comment.id})"></i>
+                    </div>
+                </div>
                 <hr class="mt-5" style="border: solid 2px">
-                </c:forEach>
             </div>
+                </c:forEach>
             </c:otherwise>
             </c:choose>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="modal-comment" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-     aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="password" placeholder="비밀번호입력해주세요." id="modal-compw">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="comment_delete">삭제</button>
-            </div>
+
         </div>
     </div>
 </div>
 </body>
 <script>
+    getHeart();
+
+    function getHeart(){
+        const mid = '${userId}';
+        let cid = "${comment.id}";
+        console.log(cid)
+        $.ajax({
+            type:"get",
+            url:"/comment/read",
+            data:{
+                cid, mid
+            },
+            success:function(data){
+                if(data.cnt==1){
+                    $("#heart-"+cid).removeClass("bi-suit-heart").addClass("bi-suit-heart-fill");
+                }else{
+                    $("#heart-"+cid).removeClass("bi-suit-heart-fill").addClass("bi-suit-heart");
+                }
+                $("#cnt-"+cid).html(data.cnt);
+            }
+        });
+    }
+
+    const heart_fn = (event, id) => {
+        if(${user==null}){
+            alert("로그인해주세요.")
+        }else{
+            const cid = id;
+            const mid = '${userId}';
+            $.ajax({
+                url:"/comment/insert",
+                type:"get",
+                data:{
+                    cid,
+                    mid
+                },
+                success:function(){
+
+                }
+            })
+            if ($(`#no-`+id).hasClass("bi-hand-thumbs-down-fill")) {
+                $(`#no-`+id).removeClass("bi-hand-thumbs-down-fill").addClass("bi-hand-thumbs-down");
+            }
+            $(event.target).toggleClass("bi-hand-thumbs-up bi-hand-thumbs-up-fill");
+        }
+    }
+
+    const no_fn = (event, id) => {
+        if(${user==null}){
+            alert("로그인해주세요.")
+        }else{
+            if ($(`#heart-`+id).hasClass("bi-hand-thumbs-up-fill")) {
+                $(`#heart-`+id).removeClass("bi-hand-thumbs-up-fill").addClass("bi-hand-thumbs-up");
+            }
+            $(event.target).toggleClass("bi-hand-thumbs-down bi-hand-thumbs-down-fill");
+        }
+    }
+
 
     $(document).ready(function() {
         $(frm.boardFile).on("change", function(e) {
@@ -203,7 +251,6 @@
                 },
                 success: function (res) {
                     let output = "<div id=\"comment-list\">\n"
-                    console.log(res.memberId)
                     for (let i in res) {
                         console.log(res[i])
                         output += "    <div class=\"row\" >\n";
@@ -211,7 +258,7 @@
                         output += "        <div class=\"col\">" + res[i].commentContents + "</div>\n";
                         output += "        <div class=\"col\">" + res[i].commentCreatedDate + "</div>\n";
                         if (res[i].memberId == null || user == res[i].commentWriter || user=='admin@admin.com') {
-                            output += "        <div class=\"col\"><i class='bi bi-x-square-fill' style='cursor: pointer' onclick=\"delete_fn(" + res[i].id + "," + null + ")\"></i></div>\n";
+                            output += "        <div class=\"col\"><i class='bi bi-x-square-fill' style='cursor: pointer' onclick=\"delete_fn(event, '" + res[i].id + "', null)\"></i><input type='password' name='commentPass'></div>\n";
                         }
                         output += "        <hr class=\"mt-5\" style=\"border: solid 2px\">";
                         output += "    </div>\n";
@@ -231,12 +278,12 @@
         }
     }
 
-    const delete_fn = (id, memberId) => {
+    const delete_fn = (event, id, memberId) => {
         if (memberId == "" && ${user!="admin@admin.com"}  || memberId == null && ${user!="admin@admin.com"} ) {
-            $("#modal-comment").modal("show");
-            $("#comment_delete").on("click", function () {
-                const commentPassword = document.getElementById("modal-compw").value;
-                console.log(id, commentPassword);
+            const commentPassword = $(event.target).parent().find('input[name="commentPass"]').val();
+            if(commentPassword==""){
+                alert("비번입력바람!")
+            }else{
                 $.ajax({
                     type: "post",
                     data: {id, commentPassword},
@@ -249,7 +296,7 @@
                         alert("비밀번호가 일치하지않습니다.");
                     }
                 })
-            })
+            }
         } else if (memberId == '${userId}' || ${user=="admin@admin.com"}) {
             $.ajax({
                 type: "get",
@@ -268,7 +315,8 @@
         const page = '${page}';
         const query = '${query}';
         const key = '${key}';
-        location.href = "/board/list?page=" + page + "&query=" + query + "&key=" + key;
+        const by = '${by}';
+        location.href = "/board/list?page=" + page + "&query=" + query + "&key=" + key + "&by=" + by;
     }
     const board_update = () => {
         if (user == '${board.boardWriter}') {

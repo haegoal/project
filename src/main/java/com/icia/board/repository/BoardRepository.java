@@ -15,7 +15,7 @@ public class BoardRepository {
     @Autowired
     private SqlSessionTemplate sql;
 
-    public List<BoardDTO> paginglist(Map<String, Integer> pagingMap) {
+    public List<BoardDTO> paginglist(Map<String, Object> pagingMap) {
         return sql.selectList("Board.paging", pagingMap);
     }
 

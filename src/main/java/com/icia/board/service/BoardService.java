@@ -21,11 +21,13 @@ public class BoardService {
     @Autowired
     private BoardRepository boardRepository;
 
-    public List<BoardDTO> paginglist(int page, int pageLimit) {
+    public List<BoardDTO> paginglist(int page, int pageLimit, String by) {
         int pageingStart = (page - 1) * pageLimit;
-        Map<String, Integer> pagingMap = new HashMap<>();
+        Map<String, Object> pagingMap = new HashMap<>();
         pagingMap.put("start", pageingStart);
         pagingMap.put("limit", pageLimit);
+        pagingMap.put("by", by);
+        System.out.println(by);
         return boardRepository.paginglist(pagingMap);
     }
 
@@ -76,10 +78,11 @@ public class BoardService {
         return pageDTO;
     }
 
-    public List<BoardDTO> search(String key, String query, int page, int pageLimit) {
+    public List<BoardDTO> search(String key, String query, int page, int pageLimit, String by) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("k", key);
         map.put("q",query);
+        map.put("by", by);
         int pageingStart = (page -1) * pageLimit;
         map.put("start", pageingStart);
         map.put("limit", pageLimit);

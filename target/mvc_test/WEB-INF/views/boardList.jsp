@@ -26,22 +26,22 @@
                 </c:if>
         </div>
         <div class="col-2 mt-3">
-        <input type="text" class="form-control" name="query" placeholder="검색어를 입력하세요">
+        <input type="text" class="form-control" name="query" value='${query}'   placeholder="검색어를 입력하세요">
         </div>
         <div class="col-2 mt-3">
         <input type="submit" value="검색" class="btn btn-primary">
         </div>
             <div class="col-2 mt-3 text-end">
-                <c:if test="${by==0}">
+                <c:if test="${by=='boardHits'}">
                     <select name="by" id="by" class="form-select">
-                        <option value="0" selected>조회수</option>
-                        <option value="1">최신순</option>
+                        <option value="boardHits" selected>조회수</option>
+                        <option value="createdAt">최신순</option>
                     </select>
                 </c:if>
-                <c:if test="${by==1}">
+                <c:if test="${by=='createdAt'}">
                     <select name="by" id="by" class="form-select">
-                        <option value="0">조회수</option>
-                        <option value="1" selected>최신순</option>
+                        <option value="boardHits">조회수</option>
+                        <option value="createdAt" selected>최신순</option>
                     </select>
                 </c:if>
             </div>
@@ -61,7 +61,7 @@
             <th>조회수</th>
         </tr>
         <c:forEach items="${boardList}" var="board">
-            <tr style="cursor: pointer" onclick="location.href='/board?id=${board.id}&page=${paging.page}&query=${query}&key=${key}&pageLimit=${pageLimit}'">
+            <tr style="cursor: pointer" onclick="location.href='/board?id=${board.id}&page=${paging.page}&query=${query}&key=${key}&pageLimit=${pageLimit}&by=${by}'">
                 <td>${board.id}</td>
                 <td>${board.boardTitle}</td>
                 <td>${board.boardWriter}</td>
@@ -94,7 +94,7 @@
     </select>
     </div>
     <div class="text-end">
-        <a href="/board/save?page=${paging.page}&query=${query}&key=${key}&pageLimit=${pageLimit}'"><button class="btn btn-primary">글쓰기</button></a>
+        <a href="/board/save?page=${paging.page}&query=${query}&key=${key}&pageLimit=${pageLimit}&by=${by}'"><button class="btn btn-primary">글쓰기</button></a>
     </div>
 </div>
 
@@ -113,7 +113,7 @@
             <%-- 1페이지가 아닌 경우에는 [이전]을 클릭하면 현재 페이지보다 1 작은 페이지 요청 --%>
             <c:otherwise>
                 <li class="page-item">
-                    <a class="page-link" href="/board/list?page=${paging.startPage}&query=${query}&key=${key}&pageLimit=${pageLimit}">[<<]</a>
+                    <a class="page-link" href="/board/list?page=${paging.startPage}&query=${query}&key=${key}&pageLimit=${pageLimit}&by=${by}">[<<]</a>
                 </li>
             </c:otherwise>
         </c:choose>
@@ -128,7 +128,7 @@
             <%-- 1페이지가 아닌 경우에는 [이전]을 클릭하면 현재 페이지보다 1 작은 페이지 요청 --%>
             <c:otherwise>
                 <li class="page-item">
-                    <a class="page-link" href="/board/list?page=${paging.page-1}&query=${query}&key=${key}&pageLimit=${pageLimit}">[이전]</a>
+                    <a class="page-link" href="/board/list?page=${paging.page-1}&query=${query}&key=${key}&pageLimit=${pageLimit}&by=${by}">[이전]</a>
                 </li>
             </c:otherwise>
         </c:choose>
@@ -145,7 +145,7 @@
 
                 <c:otherwise>
                     <li class="page-item">
-                        <a class="page-link" href="/board/list?page=${i}&query=${query}&key=${key}&pageLimit=${pageLimit}">${i}</a>
+                        <a class="page-link" href="/board/list?page=${i}&query=${query}&key=${key}&pageLimit=${pageLimit}&by=${by}">${i}</a>
                     </li>
                 </c:otherwise>
             </c:choose>
@@ -159,7 +159,7 @@
             </c:when>
             <c:otherwise>
                 <li class="page-item">
-                    <a class="page-link" href="/board/list?page=${paging.page+1}&query=${query}&key=${key}&pageLimit=${pageLimit}">[다음]</a>
+                    <a class="page-link" href="/board/list?page=${paging.page+1}&query=${query}&key=${key}&pageLimit=${pageLimit}&by=${by}">[다음]</a>
                 </li>
             </c:otherwise>
         </c:choose>
@@ -172,7 +172,7 @@
             </c:when>
             <c:otherwise>
                 <li class="page-item">
-                    <a class="page-link" href="/board/list?page=${paging.endPage}&query=${query}&key=${key}&pageLimit=${pageLimit}">[>>]</a>
+                    <a class="page-link" href="/board/list?page=${paging.endPage}&query=${query}&key=${key}&pageLimit=${pageLimit}&by=${by}">[>>]</a>
                 </li>
             </c:otherwise>
         </c:choose>
@@ -188,7 +188,7 @@
 
     $("#by").on("change", function(){
         const by = document.getElementById("by").value;
-        location.href="/board/list?page=${paging.page}&query=${query}&key=${key}&pageLimit=" + pageLimit + "&by=" + by;
+        location.href="/board/list?page=${paging.page}&query=${query}&key=${key}&pageLimit=" + ${pageLimit} + "&by=" + by;
     })
 </script>
 </html>

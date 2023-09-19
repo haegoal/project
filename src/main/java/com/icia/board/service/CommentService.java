@@ -1,6 +1,7 @@
 package com.icia.board.service;
 
 import com.icia.board.dto.CommentDTO;
+import com.icia.board.dto.HeartDTO;
 import com.icia.board.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,5 +27,13 @@ public class CommentService {
 
     public CommentDTO find(CommentDTO commentDTO) {
         return commentRepository.find(commentDTO);
+    }
+
+    public void insert(HeartDTO heartDTO) {
+        commentRepository.insert(heartDTO);
+    }
+
+    public List<HeartDTO> findHeart() {
+        return commentRepository.findHeart();
     }
 }

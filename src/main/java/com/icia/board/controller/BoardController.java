@@ -94,10 +94,15 @@ public class BoardController {
         }
 
         List<CommentDTO> commentDTOList = commentService.findAll(id);
+        List<HeartDTO> heartDTOList = commentService.findHeart();
+
+        System.out.println(heartDTOList);
         if (commentDTOList.size() == 0) {
             model.addAttribute("commentList", null);
+            model.addAttribute("heartList", null);
         } else {
             model.addAttribute("commentList", commentDTOList);
+            model.addAttribute("heartList", heartDTOList);
         }
         model.addAttribute("query", query);
         model.addAttribute("key", key);
@@ -112,17 +117,18 @@ public class BoardController {
                        @RequestParam(value = "pageLimit", required = false, defaultValue = "3") int pageLimit,
                        @RequestParam(value = "query", required = false, defaultValue = "") String query,
                        @RequestParam(value = "key", required = false, defaultValue = "boardTitle") String key,
+                       @RequestParam(value = "by", required = false, defaultValue = "boardHits") String by,
                        Model model){
 
         List<BoardDTO> boardDTOList =null;
         PageDTO pageDTO = null;
 
         if(query.equals("")){
-            boardDTOList = boardService.paginglist(page, pageLimit);
+            boardDTOList = boardService.paginglist(page, pageLimit, by);
             pageDTO = boardService.pageNumber(page, pageLimit);
             System.out.println(pageDTO.getMaxPage());
         }else{
-            boardDTOList = boardService.search(key, query, page, pageLimit);
+            boardDTOList = boardService.search(key, query, page, pageLimit, by);
             pageDTO = boardService.searchPageNumber(key, query, page, pageLimit);
         }
         model.addAttribute("boardList", boardDTOList);
@@ -131,6 +137,7 @@ public class BoardController {
         model.addAttribute("key", key);
         model.addAttribute("page", page);
         model.addAttribute("pageLimit", pageLimit);
+        model.addAttribute("by", by);
         return "boardList";
     }
 
