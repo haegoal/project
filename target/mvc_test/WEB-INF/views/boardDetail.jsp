@@ -107,7 +107,8 @@
         </c:when>
         <c:otherwise>
         <div id="comment-list">
-            <c:forEach items="${commentList}" var="comment" varStatus="status">
+            <c:forEach items="${commentList}" var="comment">
+                <c:set var="asd" value="false"/>
                 <div class="row">
                     <div class="col">${comment.commentWriter}</div>
                     <div class="col">${comment.commentContents}</div>
@@ -116,28 +117,43 @@
                     <div class="col text-end">
                         <div class="col text-end"><i class="bi bi-x-square-fill" style='cursor: pointer;'
                                                      onclick="delete_fn(event, '${comment.id}', '${comment.memberId}')"></i>
-                            <input type="password" name="commentPass">
+                            <c:if test="${comment.memberId ==null}">
+                                <input type="password" name="commentPass">
+                            </c:if>
                         </div>
-                        <div class="col"></div>
                         </c:if>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <c:choose>
-                                <c:when test="${heartDTOList[status.index].mid==userId and comment.id == heartDTOList[status.index].cid}">
+                            <c:set var="loop" value="false"/>
+                            <c:forEach items="${heartDTOList}" var="heart" varStatus="status">
+                                <c:if test="${heart.mid==userId and comment.id == heart.cid}">
                                     <i class="bi bi-hand-thumbs-up-fill" id="heart-${comment.id}"
                                        style="cursor: pointer;" onclick="heart_fn(event, ${comment.id})"></i>
-                                </c:when>
-                                <c:otherwise>
+                                    <c:set var="loop" value="true"/>
+                                    <c:set var="asd" value="true"/>
+                                </c:if>
+                                <c:if test="${status.last and not asd}">
                                     <i class="bi bi-hand-thumbs-up" id="heart-${comment.id}" style="cursor: pointer;"
                                        onclick="heart_fn(event, ${comment.id})"></i>
-                                </c:otherwise>
-                            </c:choose>
-                            <i class="bi bi-hand-thumbs-down" id="no-${comment.id}" style="cursor: pointer;"
-                               onclick="no_fn(event, ${comment.id})"></i>
-                            <c:if test="${comment.cnt!=0}">
-                                <p id="cnt-${comment.id}">${comment.cnt}</p>
-                            </c:if>
+                                    <c:set var="loop" value="true"/>
+                                </c:if>
+                            </c:forEach>
+                            <c:set var="loopp" value="false"/>
+                            <c:forEach items="${noDTOList}" var="no" varStatus="s">
+                                <c:if test="${no.mid==userId and comment.id == no.cid}">
+                                    <i class="bi bi-hand-thumbs-down-fill" id="no-${comment.id}" style="cursor: pointer;"
+                                       onclick="no_fn(event, ${comment.id})"></i>
+                                    <c:set var="loopp" value="true"/>
+                                    <c:set var="asdd" value="true"/>
+                                </c:if>
+                                <c:if test="${s.last and not asdd}">
+                                    <i class="bi bi-hand-thumbs-down" id="no-${comment.id}" style="cursor: pointer;"
+                                       onclick="no_fn(event, ${comment.id})"></i>
+                                    <c:set var="loopp" value="true"/>
+                                </c:if>
+                            </c:forEach>
+                            <p id="cnt-${comment.id}">${comment.cnt}</p>
                         </div>
                     </div>
                     <hr class="mt-5" style="border: solid 2px">
@@ -150,13 +166,14 @@
 </div>
 </body>
 <script>
+    const user = '${user}';
+    const userId = '${userId}'
 
     const heart_fn = (event, id) => {
         const cnt = document.getElementById("cnt-" + id);
         if (${user==null}) {
             alert("로그인해주세요.")
         } else if ($(`#heart-` + id).hasClass("bi-hand-thumbs-up")) {
-            alert(".....2")
             const cid = id;
             const mid = '${userId}';
             $.ajax({
@@ -211,6 +228,20 @@
                     cnt.innerText = data;
                 }
             })
+        }else if ($(`#no-` + id).hasClass("bi-hand-thumbs-down-fill")) {
+            const cid = id;
+            const mid = '${userId}';
+            $.ajax({
+                url: "/comment/ddrop",
+                type: "get",
+                data: {
+                    cid,
+                    mid
+                },
+                success: function (data) {
+                    cnt.innerText = data;
+                }
+            })
         }
         if (${user!=null}) {
             if ($(`#heart-` + id).hasClass("bi-hand-thumbs-up-fill")) {
@@ -247,7 +278,6 @@
         });
     });
 
-    const user = '${user}';
 
     const comment_write = () => {
         const commentWriter = document.getElementById("comment-writer").value;
@@ -274,26 +304,46 @@
                     memberId,
                 },
                 success: function (res) {
-                    let output = "<div id=\"comment-list\">\n"
-                    for (let i in res) {
-                        console.log(res[i])
-                        output += "    <div class=\"row\" >\n";
-                        output += "        <div class=\"col\">" + res[i].commentWriter + "</div>\n";
-                        output += "        <div class=\"col\">" + res[i].commentContents + "</div>\n";
-                        output += "        <div class=\"col\">" + res[i].commentCreatedDate + "</div>\n";
-                        if (res[i].memberId == null || user == res[i].commentWriter || user == 'admin@admin.com') {
-                            output += "        <div class=\"col\"><i class='bi bi-x-square-fill' style='cursor: pointer' onclick=\"delete_fn(event, '" + res[i].id + "', null)\"></i><input type='password' name='commentPass'></div>\n";
+                    $.ajax({
+                        type: "GET",
+                        url: "/comment/findHeart",
+                        success: function (data) {
+                            let output = "<div id=\"comment-list\">\n"
+                            for (let i in res) {
+                                output += "    <div class=\"row\" >\n";
+                                output += "        <div class=\"col\">" + res[i].commentWriter + "</div>\n";
+                                output += "        <div class=\"col\">" + res[i].commentContents + "</div>\n";
+                                output += "        <div class=\"col\">" + res[i].commentCreatedDate + "</div>\n";
+                                if (res[i].memberId == null || user == res[i].commentWriter || user == 'admin@admin.com') {
+                                    output += "        <div class=\"col text-end\">";
+                                    output += "        <div class=\"col text-end\"><i class='bi bi-x-square-fill' style='cursor: pointer' onclick=\"delete_fn(event, '" + res[i].id + "', '" + res[i].memberId + "')\"></i>"+ "</div>\n";
+                                    if (res[i].memberId == null) {
+                                        output += "<input type='password' name='commentPass'></div>\n";
+                                    }
+                                }
+                                output += "</div>\n";
+                                output += "        <div class=\"row\">" + "<div class=\"col\">";
+                                for(let j in data){
+                                    if (data[j].mid == userId && res[i].id == data[j].cid) {
+                                        output += "<i class='bi bi-hand-thumbs-up-fill' id='heart-" + res[i].id + "' style='cursor: pointer;' onclick='heart_fn(event, " + res[i].id + ")'></i>";
+                                        break;
+                                    } else if(j==data.length && data[j].mid != userId || res[i].id != data[j].cid) {
+                                        output += "<i class='bi bi-hand-thumbs-up' id='heart-" + res[i].id + "' style='cursor: pointer;' onclick='heart_fn(event, " + res[i].id + ")'></i>";
+                                        break;
+                                    }
+                                }
+                                output += "<i class='bi bi-hand-thumbs-down' id='no-" + res[i].id + "' style='cursor: pointer;' onclick='no_fn(event, " + res[i].id + ")'></i>";
+                                output += "<p id='cnt-" + res[i].id + "'>" + res[i].cnt + "</p>";
+                                output += "    </div>\n";
+                                output += "    </div>\n";
+                                output += "        <hr class=\"mt-5\" style=\"border: solid 2px\">";
+                                output += "    </div>\n";
+                            }
+                            output += "</div>";
+                            result.innerHTML = output;
+                            document.getElementById("comment-contents").value = "";
                         }
-                        output += "        <hr class=\"mt-5\" style=\"border: solid 2px\">";
-                        output += "    </div>\n";
-                    }
-                    output += "</div>";
-                    result.innerHTML = output;
-                    if (user == null) {
-                        document.getElementById("comment-writer").value = "";
-                        document.getElementById("comment-password").value = "";
-                    }
-                    document.getElementById("comment-contents").value = "";
+                    })
                 },
                 error: function () {
                     console.log("댓글 작성 실패");

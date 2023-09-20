@@ -94,13 +94,16 @@ public class BoardController {
         }
         List<CommentDTO> commentDTOList = commentService.findAll(id);
         List<HeartDTO> heartDTOList = commentService.findHeart();
+        List<NoDTO> noDTOList = commentService.findNo();
 
         if (commentDTOList.size() == 0) {
             model.addAttribute("commentList", null);
             model.addAttribute("heartDTOList", null);
+            model.addAttribute("noDTOList", null);
         } else {
             model.addAttribute("commentList", commentDTOList);
             model.addAttribute("heartDTOList", heartDTOList);
+            model.addAttribute("noDTOList", noDTOList);
         }
         model.addAttribute("query", query);
         model.addAttribute("key", key);

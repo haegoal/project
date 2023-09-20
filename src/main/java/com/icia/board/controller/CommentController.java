@@ -20,9 +20,16 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
+    @GetMapping("/findHeart")
+    public ResponseEntity findHeart() {
+        List<HeartDTO> heartDTOList = commentService.findHeart();
+        return new ResponseEntity<>(heartDTOList, HttpStatus.OK);
+    }
+
     @GetMapping("/insert")
     public ResponseEntity insert(@ModelAttribute HeartDTO heartDTO) {
         commentService.insert(heartDTO);
+        commentService.ddrop(heartDTO);
         commentService.update(heartDTO.getCid());
         int result = commentService.select(heartDTO.getCid());
         return new ResponseEntity<>(result, HttpStatus.OK);
@@ -30,11 +37,20 @@ public class CommentController {
 
     @GetMapping("/drop")
     public ResponseEntity drop(@ModelAttribute HeartDTO heartDTO) {
+        commentService.dinsert(heartDTO);
         commentService.drop(heartDTO);
         commentService.updated(heartDTO.getCid());
         int result = commentService.select(heartDTO.getCid());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    @GetMapping("/ddrop")
+    public ResponseEntity ddrop(@ModelAttribute HeartDTO heartDTO) {
+        commentService.ddrop(heartDTO);
+        int result = commentService.select(heartDTO.getCid());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
 
     @GetMapping("/delete")
     public ResponseEntity ddelete(@RequestParam("id") Long id) {

@@ -2,6 +2,7 @@ package com.icia.board.service;
 
 import com.icia.board.dto.CommentDTO;
 import com.icia.board.dto.HeartDTO;
+import com.icia.board.dto.NoDTO;
 import com.icia.board.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,5 +53,18 @@ public class CommentService {
 
     public int select(Long cid) {
         return commentRepository.select(cid);
+    }
+
+
+    public void ddrop(HeartDTO heartDTO) {
+        commentRepository.ddrop(heartDTO);
+    }
+
+    public void dinsert(HeartDTO heartDTO) {
+        commentRepository.dinsert(heartDTO);
+    }
+
+    public List<NoDTO> findNo() {
+        return commentRepository.findNo();
     }
 }

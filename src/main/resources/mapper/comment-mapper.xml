@@ -9,7 +9,7 @@
         values (#{commentWriter}, #{commentContents}, #{boardId}, #{commentPassword}, #{memberId})
     </insert>
     <select id="findAll" parameterType="Long" resultType="comment">
-        select id, commentWriter, commentContents,
+        select id, commentWriter, commentContents, commentPassword,
                date_format(commentCreatedDate, "%y-%m-%d %H:%i:%s") as commentCreatedDate, boardId, memberId, cnt
         from comment_table where boardId = #{boardId} order by id desc
     </select>
@@ -26,6 +26,11 @@
     <insert id="insert" parameterType="heart">
         insert into heart_table (mid, cid) values (#{mid}, #{cid})
     </insert>
+
+    <insert id="dinsert" parameterType="heart">
+        insert into no_table (mid, cid) values (#{mid}, #{cid})
+    </insert>
+
 
     <update id="update" parameterType="Long">
         update comment_table set cnt = cnt + 1 where id = #{id}
@@ -45,5 +50,13 @@
 
     <delete id="drop" parameterType="heart">
         delete from heart_table where cid = #{cid} and mid = #{mid}
+    </delete>
+
+    <select id="findNo" resultType="no">
+        select * from no_table
+    </select>
+
+    <delete id="ddrop" parameterType="heart">
+        delete from no_table where cid = #{cid} and mid = #{mid}
     </delete>
 </mapper>
